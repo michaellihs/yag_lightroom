@@ -1,0 +1,2 @@
+"$$$/yag/PluginName=YAG Veröffentlichungs-Service"
+"$$$/yag/yag-title=yag"
