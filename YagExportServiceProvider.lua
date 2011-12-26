@@ -126,8 +126,137 @@ exportServiceProvider.showSections = {
 	'watermarking'
 }
 
+--------------------------------------------------------------------------------
+
+--- (optional) Plug-in defined value suppresses the display of the named sections in
+ -- the Export or Publish dialogs. You can use either <code>hideSections</code> or 
+ -- <code>showSections</code>, but not both. If present, this should be an array 
+ -- containing one or more of the following strings:
+	-- <ul>
+		-- <li>exportLocation</li>
+		-- <li>fileNaming</li>
+		-- <li>fileSettings</li>
+		-- <li>imageSettings</li>
+		-- <li>outputSharpening</li>
+		-- <li>metadata</li>
+		-- <li>watermarking</li>
+	-- </ul>
+ -- <p>You cannot suppress display of the "Connection Name" section in the Publish Manager dialog.</p>
+ -- <p>If you suppress the "exportLocation" section, the files are rendered into
+ -- a temporary folder which is deleted immediately after the Export operation
+ -- completes.</p>
+ -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
+	-- @name exportServiceProvider.hideSections
+	-- @class property
+
+exportServiceProvider.hideSections = { 'exportLocation' }
 
 --------------------------------------------------------------------------------
+
+--- (optional) Plug-in defined value restricts the available file format choices in the
+ -- Export or Publish dialogs to those named. You can use either <code>allowFileFormats</code> or 
+ -- <code>disallowFileFormats</code>, but not both. If present, this should be an array
+ -- containing one or more of the following strings:
+	-- <ul>
+		-- <li>JPEG</li>
+		-- <li>PSD</li>
+		-- <li>TIFF</li>
+		-- <li>DNG</li>
+		-- <li>ORIGINAL</li>
+	-- </ul>
+ -- <p>This property affects the output of still photo files only;
+ -- it does not affect the output of video files.
+ --  See <a href="#exportServiceProvider.canExportVideo"><code>canExportVideo</code></a>.)</p>
+ -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
+	-- @name exportServiceProvider.allowFileFormats
+	-- @class property
+
+exportServiceProvider.allowFileFormats = { 'JPEG' }
+
+--------------------------------------------------------------------------------
+
+--- (optional) Plug-in defined value restricts the available color space choices in the
+ -- Export or Publish dialogs to those named.  You can use either <code>allowColorSpaces</code> or 
+ -- <code>disallowColorSpaces</code>, but not both. If present, this should be an array
+ -- containing one or more of the following strings:
+	-- <ul>
+		-- <li>sRGB</li>
+		-- <li>AdobeRGB</li>
+		-- <li>ProPhotoRGB</li>
+	-- </ul>
+ -- <p>Affects the output of still photo files only, not video files.
+ -- See <a href="#exportServiceProvider.canExportVideo"><code>canExportVideo</code></a>.</p>
+ -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
+	-- @name exportServiceProvider.allowColorSpaces
+	-- @class property
+
+exportServiceProvider.allowColorSpaces = { 'sRGB' }
+	
+--------------------------------------------------------------------------------
+
+--- (optional, Boolean) Plug-in defined value is true to hide print resolution controls
+ -- in the Image Sizing section of the Export or Publish dialog.
+ -- (Recommended when uploading to most web services.)
+ -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
+	-- @name exportServiceProvider.hidePrintResolution
+	-- @class property
+
+exportServiceProvider.hidePrintResolution = true
+
+--------------------------------------------------------------------------------
+
+--- (optional, Boolean)  When plug-in defined value istrue, both video and 
+ -- still photos can be exported through this plug-in. If not present or set to false,
+ --  video files cannot be exported through this plug-in. If set to the string "only",
+ -- video files can be exported, but not still photos.
+ -- <p>No conversions are available for video files. They are simply
+ -- copied in the same format that was originally imported into Lightroom.</p>
+ -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
+	-- @name exportServiceProvider.canExportVideo
+	-- @class property
+
+exportServiceProvider.canExportVideo = false -- video is not supported through this sample plug-in
+
+--------------------------------------------------------------------------------
+
+--- (optional) This plug-in defined callback function is called when the 
+ -- user chooses this export service provider in the Export or Publish dialog, 
+ -- or when the destination is already selected when the dialog is invoked, 
+ -- (remembered from the previous export operation).
+ -- <p>This is a blocking call. If you need to start a long-running task (such as
+ -- network access), create a task using the <a href="LrTasks.html"><code>LrTasks</code></a>
+ -- namespace.</p>
+ -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
+	-- @param propertyTable (table) An observable table that contains the most
+		-- recent settings for your export or publish plug-in, including both
+		-- settings that you have defined and Lightroom-defined export settings
+	-- @name exportServiceProvider.startDialog
+	-- @class function
+
+function exportServiceProvider.startDialog( propertyTable )
+
+	-- Clear login if it's a new connection.
+	
+	if not propertyTable.LR_editingExistingPublishConnection then
+		propertyTable.username = nil
+		propertyTable.nsid = nil
+		propertyTable.auth_token = nil
+	end
+
+	-- Can't export until we've validated the login.
+
+	propertyTable:addObserver( 'validAccount', function() updateCantExportBecause( propertyTable ) end )
+	updateCantExportBecause( propertyTable )
+
+	-- Make sure we're logged in.
+
+	require 'YagUser'
+	YagUser.verifyLogin( propertyTable )
+
+end
+
+--------------------------------------------------------------------------------
+
 
 
 return exportServiceProvider
