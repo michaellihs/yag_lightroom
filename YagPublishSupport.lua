@@ -27,3 +27,20 @@ GNU General Public License for more details.
 This copyright notice MUST APPEAR in all copies of the script!
 
 ------------------------------------------------------------------------------]]
+
+local publishServiceProvider = {}
+
+--------------------------------------------------------------------------------
+--- (string) Plug-in defined value is the filename of the icon to be displayed
+ -- for this publish service provider, in the Publish Services panel, the Publish 
+ -- Manager dialog, and in the header shown when a published collection is selected.
+ -- The icon must be in PNG format and no more than 26 pixels wide or 19 pixels tall.
+ -- <p>First supported in version 3.0 of the Lightroom SDK.</p>
+	-- @name publishServiceProvider.small_icon
+	-- @class property
+
+publishServiceProvider.small_icon = 'small_yag.png'
+
+--------------------------------------------------------------------------------
+
+YagPublishSupport = publishServiceProvider

@@ -1,7 +1,13 @@
 --[[----------------------------------------------------------------------------
 
-Info.lua
-Summary information for yag plugin
+LoggerConfig.lua
+Configuration for Lightroom logger for logging yag plugin
+
+use
+
+require 'LoggerConfig'
+
+to establish logger with this configuration in your script.
 
 --------------------------------------------------------------------------------
 
@@ -28,19 +34,19 @@ This copyright notice MUST APPEAR in all copies of the script!
 
 ------------------------------------------------------------------------------]]
 
-return {
-	LrSdkVersion = 3.0,
-	LrSdkMinimumVersion = 3.0, -- minimum SDK version required by this plug-in
+local LrLogger = import "LrLogger"
+local log = LrLogger( 'Yag' )
 
-	LrToolkitIdentifier = 'de.yaggallery.lightroom.export.yag',
-	LrPluginName = LOC "$$$/yag/PluginName=Yag TYPO3 Gallery",
-	
-	LrExportServiceProvider = {
-		title = LOC "$$$/yag/yag-title=yag",
-		file = 'YagExportServiceProvider.lua',
-	},
-	
-	LrMetadataProvider = 'YagMetadataDefinition.lua',
+-- Log files will be written to a file:
+-- 	On Mac: 
 
-	VERSION = { major=0, minor=1, revision=0, build=1, },
-}
+log:enable( { 
+	['debug'] = 'logfile',
+	['trace'] = 'logfile',
+	['info'] = 'logfile',
+	['warn'] = 'logfile',
+	['error'] = 'logfile',
+	['fatal'] = 'logfile'
+} )
+
+--log:disable()

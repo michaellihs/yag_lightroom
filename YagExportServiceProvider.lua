@@ -42,8 +42,10 @@ local bind = LrView.bind
 local share = LrView.share
 
 	-- yag plug-in
+require 'LoggerConfig'
 require 'YagApi'
 require 'YagPublishSupport'
+
 
 --------------------------------------------------------------------------------
 
@@ -216,6 +218,21 @@ exportServiceProvider.hidePrintResolution = true
 	-- @class property
 
 exportServiceProvider.canExportVideo = false -- video is not supported through this sample plug-in
+
+--------------------------------------------------------------------------------
+
+-- Yag specific: Helper functions and tables.
+
+local function updateCantExportBecause( propertyTable )
+
+	if not propertyTable.validAccount then
+		propertyTable.LR_cantExportBecause = LOC "$$$/yag/ExportDialog/NoLogin=You haven't logged in to yag yet."
+		return
+	end
+	
+	propertyTable.LR_cantExportBecause = nil
+
+end
 
 --------------------------------------------------------------------------------
 
