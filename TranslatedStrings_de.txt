@@ -7,3 +7,6 @@
 "$$$/yag/AccountStatus/LogInFailed=Anmeldung fehlgeschlagen, konnte nicht als ^1 angemeldet werden!"
 "$$$/yag/AccountStatus/LoginFailed/Message=Die Anmeldedaten konnten nicht verifiziert werden. Bitte melde dich nochmals an. Bitte beachte, dass du die Zugangsdaten für einen bestehenden Account nicht ändern kannst. Du musst dich mit demselben Account anmelden."
 "$$$/yag/SignIn=Melde dich mit deinen Benutzerdaten an."
+"$$$/yag/ExportDialog/Account=Yag Zugangsdaten"
+"$$$/yag/AccountStatus/LoggingIn=Anmeldung läuft..."
+"$$$/yag/ExportDialog/Title=Yag Titel"

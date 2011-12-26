@@ -183,3 +183,61 @@ function YagUser.updateUserStatusTextBindings( propertyTable )
 	end
 
 end
+
+--------------------------------------------------------------------------------
+
+local doingLogin = false
+
+function YagUser.login( propertyTable )
+
+	if doingLogin then return end
+	doingLogin = true
+
+	LrFunctionContext.postAsyncTaskWithContext( 'Yag login',
+	function( context )
+
+		-- Clear any existing login info, but only if creating new account.
+		-- If we're here on an existing connection, that's because the login
+		-- token was rejected. We need to retain existing account info so we
+		-- can cross-check it.
+
+		if not propertyTable.LR_editingExistingPublishConnection then
+			notLoggedIn( propertyTable )
+		end
+
+		propertyTable.accountStatus = LOC "$$$/yag/AccountStatus/LoggingIn=Logging in..."
+		propertyTable.loginButtonEnabled = false
+		
+		LrDialogs.attachErrorDialogToFunctionContext( context )
+		
+		-- Make sure login is valid when done, or is marked as invalid.
+		
+		context:addCleanupHandler( function()
+
+			doingLogin = false
+
+			if not storedCredentialsAreValid( propertyTable ) then
+				notLoggedIn( propertyTable )
+			end
+
+		end )
+		
+		
+		
+		-- TODO we have to implement login mechanism
+		
+		
+		
+		-- Now we can read the Flickr user credentials. Save off to prefs.
+	
+		--propertyTable.username = auth.user.username
+		--propertyTable.fullname = auth.user.fullname
+		--propertyTable.auth_token = auth.token._value
+		
+		YagUser.updateUserStatusTextBindings( propertyTable )
+		
+	end )
+
+end
+
+--------------------------------------------------------------------------------

@@ -274,6 +274,62 @@ end
 
 --------------------------------------------------------------------------------
 
+--- (optional) This plug-in defined callback function is called when the user 
+ -- chooses this export service provider in the Export or Publish dialog. 
+ -- It can create new sections that appear above all of the built-in sections 
+ -- in the dialog (except for the Publish Service section in the Publish dialog, 
+ -- which always appears at the very top).
+ -- <p>Your plug-in's <a href="#exportServiceProvider.startDialog"><code>startDialog</code></a>
+ -- function, if any, is called before this function is called.</p>
+ -- <p>This is a blocking call. If you need to start a long-running task (such as
+ -- network access), create a task using the <a href="LrTasks.html"><code>LrTasks</code></a>
+ -- namespace.</p>
+ -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
+	-- @param f (<a href="LrView.html#LrView.osFactory"><code>LrView.osFactory</code> object)
+		-- A view factory object.
+	-- @param propertyTable (table) An observable table that contains the most
+		-- recent settings for your export or publish plug-in, including both
+		-- settings that you have defined and Lightroom-defined export settings
+	-- @return (table) An array of dialog sections (see example code for details)
+	-- @name exportServiceProvider.sectionsForTopOfDialog
+	-- @class function
+
+function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
+
+	return {
+	
+		{
+			title = LOC "$$$/yag/ExportDialog/Account=Yag Account",
+			
+			synopsis = bind 'accountStatus',
+
+			f:row {
+				spacing = f:control_spacing(),
+
+				f:static_text {
+					title = bind 'accountStatus',
+					alignment = 'right',
+					fill_horizontal = 1,
+				},
+
+				f:push_button {
+					width = tonumber( LOC "$$$/locale_metric/Flickr/ExportDialog/LoginButton/Width=90" ),
+					title = bind 'loginButtonTitle',
+					enabled = bind 'loginButtonEnabled',
+					action = function()
+					require 'YagUser'
+					YagUser.login( propertyTable )
+					end,
+				},
+
+			},
+		},
+	
+	}
+
+end
+
+--------------------------------------------------------------------------------
 
 
 return exportServiceProvider
