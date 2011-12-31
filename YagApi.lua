@@ -27,3 +27,63 @@ GNU General Public License for more details.
 This copyright notice MUST APPEAR in all copies of the script!
 
 ------------------------------------------------------------------------------]]
+
+-- Load Plugin's preferences
+local prefs = import 'LrPrefs'.prefsForPlugin()
+local logger = import 'LrLogger'( 'Yag' )
+
+require 'YagAccountDialog'
+require 'YagUtils'
+
+--------------------------------------------------------------------------------
+
+YagApi = {}
+
+--------------------------------------------------------------------------------
+
+function YagApi.getLoginInformation()
+
+	local username = prefs.username
+	local password = prefs.password
+	local domain = prefs.domain
+	local protocoll = prefs.protocoll
+	local port = prefs.port
+	
+	while not(
+		type( username )  == 'string' and #username > 0 and
+		type( password )  == 'string' and #password > 0 and
+		type( domain )    == 'string' and #domain > 0 and
+		type( protocoll ) == 'string' and #protocoll > 0 and
+		type( port )      == 'string' and #port > 0
+	) do
+	
+		local message
+		if username then
+			message = "Your yag login does not seem to be valid!"
+		end
+
+		-- If we do not have login data, show login / account dialog
+		YagAccountDialog.showLoginDialog( message )
+
+		username = prefs.username
+		password = prefs.password
+		domain = prefs.domain
+		protocoll = prefs.protocoll
+		port = prefs.port
+
+		loginInformation = {
+			username = username,
+			password = password,
+			domain = domain,
+			protocoll = protocoll,
+			port = port
+		}
+	
+	end
+	
+	logger:trace('loginInformation:')
+	logger:trace(YagUtils.toString(loginInformation))
+	
+	return loginInformation
+
+end

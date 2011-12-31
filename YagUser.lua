@@ -54,17 +54,7 @@ YagUser = {}
 		-- settings that you have defined and Lightroom-defined export settings
 local function getDisplayUserNameFromProperties( propertyTable )
 
-	local displayUserName = propertyTable.fullname
-	if ( not displayUserName or #displayUserName == 0 )
-		or displayUserName == propertyTable.username
-	then
-		displayUserName = propertyTable.username
-	else
-		displayUserName = LOC( "$$$/yag/AccountStatus/UserNameAndLoginName=^1 (^2)",
-							propertyTable.fullname,
-							propertyTable.username )
-	end
-	
+	displayUserName = propertyTable.username
 	return displayUserName
 
 end
@@ -90,10 +80,11 @@ end
 		-- settings that you have defined and Lightroom-defined export settings
 local function notLoggedIn( propertyTable )
 
-	propertyTable.token = nil
-	
 	propertyTable.username = nil
-	propertyTable.fullname = ''
+	propertyTable.password = nil
+	propertyTable.protocoll = nil
+	propertyTable.domain = nil
+	propertyTable.port = nil
 	propertyTable.auth_token = nil
 
 	propertyTable.accountStatus = LOC "$$$/yag/AccountStatus/NotLoggedIn=Not logged in"
@@ -148,9 +139,9 @@ end
 
 function YagUser.updateUserStatusTextBindings( propertyTable )
 
-	local nsid = propertyTable.nsid
+	local username = propertyTable.username
 	
-	if nsid and string.len( nsid ) > 0 then
+	if username and string.len( username ) > 0 then
 
 		LrFunctionContext.postAsyncTaskWithContext( 'Yag account status check',
 		function( context )
@@ -190,11 +181,11 @@ local doingLogin = false
 
 function YagUser.login( propertyTable )
 
+	-- make sure not to start a login procedure twice
 	if doingLogin then return end
 	doingLogin = true
 
-	LrFunctionContext.postAsyncTaskWithContext( 'Yag login',
-	function( context )
+	LrFunctionContext.postAsyncTaskWithContext( 'Yag login', function( context )
 
 		-- Clear any existing login info, but only if creating new account.
 		-- If we're here on an existing connection, that's because the login
@@ -224,14 +215,17 @@ function YagUser.login( propertyTable )
 		
 		
 		
-		-- TODO we have to implement login mechanism
+		-- Get current login information (if not currently logged in, dialog will be shown)
+		loginInformation = YagApi.getLoginInformation()
+		
+		-- TODO implement actual yag login here!
+		--propertyTable.auth_token = YagApi.login(loginInformation)
+		propertyTable.auth_token = '0815'
 		
 		
-		
-		-- Now we can read the Flickr user credentials. Save off to prefs.
-	
-		--propertyTable.username = auth.user.username
-		--propertyTable.fullname = auth.user.fullname
+		-- Now we can read the Yag user credentials. Save off to prefs.
+		propertyTable.username = loginInformation.username
+		-- TODO we have to set some kind of auth_token here
 		--propertyTable.auth_token = auth.token._value
 		
 		YagUser.updateUserStatusTextBindings( propertyTable )

@@ -91,9 +91,11 @@ exportServiceProvider.supportsIncrementalPublish = 'only'
  	-- @class property
 
 exportServiceProvider.exportPresetFields = {
-	{ key = 'username', default = "" },
-	{ key = 'fullname', default = "" },
-	{ key = 'auth_token', default = '' },
+	{ key = 'protocoll', default = "http" },
+	{ key = 'domain', default = "" },
+	{ key = 'port', default = "80" },
+	{ key = 'username', default = "" },		
+	{ key = 'password', default = "" },
 }
 
 --------------------------------------------------------------------------------
@@ -317,8 +319,8 @@ function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 					title = bind 'loginButtonTitle',
 					enabled = bind 'loginButtonEnabled',
 					action = function()
-					require 'YagUser'
-					YagUser.login( propertyTable )
+						require 'YagUser'
+						YagUser.login( propertyTable )
 					end,
 				},
 
