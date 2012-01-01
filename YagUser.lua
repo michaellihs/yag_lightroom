@@ -213,20 +213,17 @@ function YagUser.login( propertyTable )
 
 		end )
 		
-		
-		
 		-- Get current login information (if not currently logged in, dialog will be shown)
 		loginInformation = YagApi.getLoginInformation()
 		
 		-- TODO implement actual yag login here!
 		--propertyTable.auth_token = YagApi.login(loginInformation)
-		propertyTable.auth_token = '0815'
-		
-		
-		-- Now we can read the Yag user credentials. Save off to prefs.
-		propertyTable.username = loginInformation.username
-		-- TODO we have to set some kind of auth_token here
-		--propertyTable.auth_token = auth.token._value
+		loginWasSuccessfull, auth_token = YagApi.login( loginInformation )
+		if loginWasSuccessfull then
+			-- Login was successfull, we can write auth_token and username to prefs
+			propertyTable.auth_token = auth_token
+			propertyTable.username = loginInformation.username
+		end
 		
 		YagUser.updateUserStatusTextBindings( propertyTable )
 		

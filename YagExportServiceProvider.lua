@@ -40,11 +40,14 @@ local LrView = import 'LrView'
 	-- Common shortcuts
 local bind = LrView.bind
 local share = LrView.share
+local prefs = import 'LrPrefs'.prefsForPlugin()
+local logger = import 'LrLogger'( 'Yag' )
 
 	-- yag plug-in
 require 'LoggerConfig'
 require 'YagApi'
 require 'YagPublishSupport'
+require 'YagUtils'
 
 
 --------------------------------------------------------------------------------
@@ -91,11 +94,12 @@ exportServiceProvider.supportsIncrementalPublish = 'only'
  	-- @class property
 
 exportServiceProvider.exportPresetFields = {
-	{ key = 'protocoll', default = "http" },
-	{ key = 'domain', default = "" },
-	{ key = 'port', default = "80" },
-	{ key = 'username', default = "" },		
-	{ key = 'password', default = "" },
+	-- TODO if we have any default settings here, prefs are not saved!
+	--{ key = 'protocoll', default = "http" },
+	--{ key = 'domain', default = "" },
+	--{ key = 'port', default = "80" },
+	--{ key = 'username', default = "" },		
+	--{ key = 'password', default = "" },
 }
 
 --------------------------------------------------------------------------------
@@ -254,12 +258,16 @@ end
 
 function exportServiceProvider.startDialog( propertyTable )
 
+	-- We do some logging for getting overview over plugin's state
+	logger:trace('Prefs for plugin')
+	logger:trace(YagUtils.toString(prefs))
+
+	-- TODO we can change and set default settings here. This is called, when publish dialog is started
+
 	-- Clear login if it's a new connection.
 	
 	if not propertyTable.LR_editingExistingPublishConnection then
 		propertyTable.username = nil
-		propertyTable.nsid = nil
-		propertyTable.auth_token = nil
 	end
 
 	-- Can't export until we've validated the login.

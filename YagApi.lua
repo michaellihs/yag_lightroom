@@ -41,6 +41,9 @@ YagApi = {}
 
 --------------------------------------------------------------------------------
 
+--- Returns login information for given yag account.
+ -- Login information is either gathered from prefs table or a account dialog is shown to the user
+ -- where account settings can be given.
 function YagApi.getLoginInformation()
 
 	local username = prefs.username
@@ -85,5 +88,23 @@ function YagApi.getLoginInformation()
 	logger:trace(YagUtils.toString(loginInformation))
 	
 	return loginInformation
+
+end
+
+--------------------------------------------------------------------------------
+
+--- Does a login on yag server with given login information
+ -- If login succeeds, true and a auth_token will be returned
+ -- If login does not succeed, false is returned as single return value
+    -- @param loginInformation Table with login information
+    -- @return bool, string True, if login succeeds. Auth token as string
+function YagApi.login(loginInformation) 
+
+	-- TODO implement actual login!
+	if loginInformation.username == 'mimi' then
+		return true, 'auth_token'
+	else 
+		return false
+	end
 
 end
