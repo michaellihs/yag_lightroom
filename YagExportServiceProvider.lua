@@ -48,6 +48,7 @@ require 'LoggerConfig'
 require 'YagApi'
 require 'YagPublishSupport'
 require 'YagUtils'
+require 'YagSectionsForTopOfDialog'
 
 
 --------------------------------------------------------------------------------
@@ -306,36 +307,8 @@ end
 
 function exportServiceProvider.sectionsForTopOfDialog( f, propertyTable )
 
-	return {
-	
-		{
-			title = LOC "$$$/yag/ExportDialog/Account=Yag Account",
-			
-			synopsis = bind 'accountStatus',
-
-			f:row {
-				spacing = f:control_spacing(),
-
-				f:static_text {
-					title = bind 'accountStatus',
-					alignment = 'right',
-					fill_horizontal = 1,
-				},
-
-				f:push_button {
-					width = tonumber( LOC "$$$/locale_metric/Flickr/ExportDialog/LoginButton/Width=90" ),
-					title = bind 'loginButtonTitle',
-					enabled = bind 'loginButtonEnabled',
-					action = function()
-						require 'YagUser'
-						YagUser.login( propertyTable )
-					end,
-				},
-
-			},
-		},
-	
-	}
+	-- Defined in YagSectionsForTopOfDialog.lua
+	return YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 
 end
 
