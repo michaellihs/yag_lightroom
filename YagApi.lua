@@ -110,7 +110,7 @@ function YagApi.login(loginInformation)
 	-- TODO implement actual login!
 	if loginInformation.username == 'mimi' then
 		--logger:trace('YagApi.login has correct username: ' .. loginInformation.username)
-		return true, 'auth_token'
+		return true, 'auth_token-' .. loginInformation.username .. ':' .. loginInformation.url
 	else 
 		--logger:trace('YagApi.login has incorrect username: ' .. loginInformation.username)
 		return false

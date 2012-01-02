@@ -247,31 +247,20 @@ function exportServiceProvider.startDialog( propertyTable )
 	-- We do some logging for getting overview over plugin's state
 	logger:trace('Prefs for plugin')
 	logger:trace(YagUtils.toString(prefs))
-
-	-- TODO we can change and set default settings here. This is called, when publish dialog is started
 	
 	-- We set current connection for this publishing service from prefs
 	if propertyTable.LR_publish_connectionName and prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName] then
 		propertyTable.selectedAccount = prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName]
+		propertyTable.LR_cantExportBecause = nil
 	end
-
-	-- TODO check whether we need all this stuff here
-	-- Clear login if it's a new connection.
-	
-	if not propertyTable.LR_editingExistingPublishConnection then
-		propertyTable.username = nil
-	end
-
-	-- Can't export until we've validated the login.
 
 	-- We register propertyTable observers
 	propertyTable.loginButtonEnabled = false
 	registerPropertyTableObservers( propertyTable )
 
-	-- Make sure we're logged in.
-
-	require 'YagUser'
-	YagUser.verifyLogin( propertyTable )
+	-- TODO I think, we do not have to do that any longer
+	--require 'YagUser'
+	--YagUser.verifyLogin( propertyTable )
 
 end
 
@@ -285,12 +274,19 @@ function registerPropertyTableObservers( propertyTable )
 		function() 
 			logger:trace('observer is triggered for propertyTable selectedAccount')
 			enableAccountButtons( propertyTable ) 
-			--updateCantExportBecause( propertyTable )
 			setSelectedConnectionForPublishServer( propertyTable )
 		end 
 	)
 	enableAccountButtons( propertyTable )
 	setSelectedConnectionForPublishServer( propertyTable )
+	
+	propertyTable:addObserver( 'auth_token',
+		function()
+			logger:trace('observer is triggered for propertyTable auth_token')
+			updateCantExportBecause( propertyTable )
+		end
+	)
+	updateCantExportBecause( propertyTable )
 
 end
 
@@ -327,6 +323,29 @@ function setSelectedConnectionForPublishServer( propertyTable )
 	end
 	logger:trace('selected account for this instance in prefs: ' .. YagUtils.toString(prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName]))
 
+end
+
+--------------------------------------------------------------------------------
+
+--- Observer helper function that is triggered whenever auth_token is changed
+ -- in property table.
+function updateCantExportBecause( propertyTable )
+
+	logger:trace('In updateCantExportBecause')
+	logger:trace('auth_token: ' .. YagUtils.toString(propertyTable.auth_token))
+	
+	if not propertyTable.auth_token then
+		-- We have not auth_token set in property table, so we are not logged in
+		propertyTable.LR_cantExportBecause = "You are currently not logged in into yag"
+		return
+	end
+	
+	-- We have auth_token, so we are logged in
+	logger:trace('Set LR_cantExportBecause to nil')
+	logger:trace('editingExistingPublishConnection: ' .. YagUtils.toString(propertyTable.LR_editingExistingPublishConnection))
+	propertyTable.LR_cantExportBecause = nil
+	propertyTable.LR_cantExportBecause = propertyTable.LR_cantExportBecause 
+	logger:trace(YagUtils.toString(propertyTable))
 end
 
 --------------------------------------------------------------------------------

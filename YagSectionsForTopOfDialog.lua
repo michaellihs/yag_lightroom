@@ -351,7 +351,11 @@ function login( propertyTable )
 		LrDialogs.message("Login did succeed! auth_token: " .. auth_token)
 	else
 		LrDialogs.message("Login did not succeed!")
+		propertyTable.auth_token = nil
 	end
+	
+	-- Publish changes to auth_token
+	propertyTable.auth_token = propertyTable.auth_token
 	
 end
 
