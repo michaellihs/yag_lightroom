@@ -66,10 +66,6 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 	for k,v in pairs(prefs.accounts) do
 		logger:trace("Accounts: ", "k: " .. k .. " v: " .. YagUtils.toString(v))
 	end
-	
-	logger:trace('propertyTable after enableAccountButtons')
-	logger:trace(YagUtils.toString(propertyTable))
-	
 
 	-- Configuration for additional elements of publishing service dialog
 	return {
@@ -115,9 +111,7 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 				f:push_button {
 					title = LOC "$$$/yag/ExportDialog/Login=Login",
 					enabled = bind { key = 'loginButtonEnabled', object = propertyTable },
-					action = function()
-						login( propertyTable )
-					end,
+					action = function()	login( propertyTable ) end,
 					alignment = 'right',
 				},
 				
@@ -238,11 +232,10 @@ function YagSectionsForTopOfDialog.showLoginDialogAndLogin( accountSettings )
 					properties.url = string.sub(properties.url, 1, #properties.url-1)
 				end
 				
-				local loginInformation = {
-					username = properties.username,
-					url = properties.url,
-					password = properties.password
-				}
+				local loginInformation = {}
+				loginInformation.username = properties.username
+				loginInformation.url = properties.url
+				loginInformation.password = properties.password
 				
 				--attempt to login
 				local success = YagApi.login( loginInformation )
@@ -298,17 +291,17 @@ end
 function addAccount()
 
 	LrTasks.startAsyncTask( function()
-
-		-- TODO use table for return parameters
 		local loginInformation = YagSectionsForTopOfDialog.showLoginDialogAndLogin()
 		--handle cancel
 		if not loginInformation.username then 
 			return
 		end
 		
+		-- We generate a key for account
 		local k = loginInformation.url.." - "..loginInformation.username
-		--prefs.accounts = {}
-		prefs.accounts[k] = {loginInformation}
+		
+		-- We store account with generated key in prefs table
+		prefs.accounts[k] = loginInformation
 		
 		--force the observable table to propagate the change
 		prefs.accounts = prefs.accounts
@@ -351,9 +344,15 @@ function login( propertyTable )
 
 	-- TODO implement me!
 	-- We should do a login, get a session key and store it to prefs / propertyTable
+	--LrDialogs.message("Doing Login!", YagUtils.toString(propertyTable.selectedAccount))
+	local loginSuccess, auth_token = YagApi.login(prefs.accounts[propertyTable.selectedAccount])
+	if loginSuccess then
+		propertyTable.auth_token = auth_token
+		LrDialogs.message("Login did succeed! auth_token: " .. auth_token)
+	else
+		LrDialogs.message("Login did not succeed!")
+	end
 	
-	LrDialogs.message("Doing Login!", YagUtils.toString(propertyTable.selectedAccount))
-
 end
 
 --------------------------------------------------------------------------------

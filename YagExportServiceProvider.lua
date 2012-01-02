@@ -228,21 +228,6 @@ exportServiceProvider.canExportVideo = false -- video is not supported through t
 
 --------------------------------------------------------------------------------
 
--- Yag specific: Helper functions and tables.
-
-local function updateCantExportBecause( propertyTable )
-
-	if not propertyTable.selectedAccount then
-		propertyTable.LR_cantExportBecause = LOC "$$$/yag/ExportDialog/NoLogin=You haven't logged in to yag yet."
-		return
-	end
-	
-	propertyTable.LR_cantExportBecause = nil
-
-end
-
---------------------------------------------------------------------------------
-
 --- (optional) This plug-in defined callback function is called when the 
  -- user chooses this export service provider in the Export or Publish dialog, 
  -- or when the destination is already selected when the dialog is invoked, 
@@ -266,7 +251,7 @@ function exportServiceProvider.startDialog( propertyTable )
 	-- TODO we can change and set default settings here. This is called, when publish dialog is started
 	
 	-- We set current connection for this publishing service from prefs
-	if propertyTable.LR_publish_connectionName then
+	if propertyTable.LR_publish_connectionName and prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName] then
 		propertyTable.selectedAccount = prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName]
 	end
 
@@ -300,12 +285,11 @@ function registerPropertyTableObservers( propertyTable )
 		function() 
 			logger:trace('observer is triggered for propertyTable selectedAccount')
 			enableAccountButtons( propertyTable ) 
-			updateCantExportBecause( propertyTable )
+			--updateCantExportBecause( propertyTable )
 			setSelectedConnectionForPublishServer( propertyTable )
 		end 
 	)
 	enableAccountButtons( propertyTable )
-	updateCantExportBecause( propertyTable )
 	setSelectedConnectionForPublishServer( propertyTable )
 
 end

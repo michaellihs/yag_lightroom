@@ -100,10 +100,19 @@ end
     -- @return bool, string True, if login succeeds. Auth token as string
 function YagApi.login(loginInformation) 
 
+	logger:trace('YagApi.login with loginInformation:')
+	logger:trace(YagUtils.toString(loginInformation))
+
+	for k,v in pairs(loginInformation) do
+		logger:trace('Key: ' .. YagUtils.toString(k) .. ' - Value: ' .. YagUtils.toString(v))
+	end
+
 	-- TODO implement actual login!
 	if loginInformation.username == 'mimi' then
+		--logger:trace('YagApi.login has correct username: ' .. loginInformation.username)
 		return true, 'auth_token'
 	else 
+		--logger:trace('YagApi.login has incorrect username: ' .. loginInformation.username)
 		return false
 	end
 
