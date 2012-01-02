@@ -1,7 +1,7 @@
 --[[----------------------------------------------------------------------------
 
-Info.lua
-Summary information for yag plugin. Registers plugin with all its information in LR.
+LRInitPlugin.lua
+Initializes yag export plugin
 
 --------------------------------------------------------------------------------
 
@@ -28,21 +28,14 @@ This copyright notice MUST APPEAR in all copies of the script!
 
 ------------------------------------------------------------------------------]]
 
-return {
-	LrSdkVersion = 3.0,
-	LrSdkMinimumVersion = 3.0, -- minimum SDK version required by this plug-in
+local prefs = import 'LrPrefs'.prefsForPlugin()
+local logger = import 'LrLogger'( 'Yag' )
 
-	LrToolkitIdentifier = 'de.yaggallery.lightroom.export.yag',
-	LrPluginName = LOC "$$$/yag/PluginName=Yag TYPO3 Gallery",
-	
-	LrExportServiceProvider = {
-		title = LOC "$$$/yag/yag-title=yag",
-		file = 'YagExportServiceProvider.lua',
-	},
-	
-	LrMetadataProvider = 'YagMetadataDefinition.lua',
+require "YagUtils"
+require "LoggerConfig"
 
-	VERSION = { major=0, minor=1, revision=0, build=1, },
-	
-	LrInitPlugin = 'LRInitPlugin.lua'	
-}
+if not prefs.createdAlbums then prefs.createdAlbums = {} end
+if not prefs.accounts then prefs.accounts = {} end
+
+logger:trace( 'Initial preferences for plugin:' )
+logger:trace( YagUtils.toString( prefs ) )
