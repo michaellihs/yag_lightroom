@@ -34,8 +34,10 @@ local logger = import 'LrLogger'( 'Yag' )
 require "YagUtils"
 require "LoggerConfig"
 
+-- We initialize some pref values
 if not prefs.createdAlbums then prefs.createdAlbums = {} end
 if not prefs.accounts then prefs.accounts = {} end
+if not prefs.selectedAccountForServiceInstance then prefs.selectedAccountForServiceInstance = {} end
 
 logger:trace( 'Initial preferences for plugin:' )
 logger:trace( YagUtils.toString( prefs ) )

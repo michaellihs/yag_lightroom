@@ -264,7 +264,13 @@ function exportServiceProvider.startDialog( propertyTable )
 	logger:trace(YagUtils.toString(prefs))
 
 	-- TODO we can change and set default settings here. This is called, when publish dialog is started
+	
+	-- We set current connection for this publishing service from prefs
+	if propertyTable.LR_publish_connectionName then
+		propertyTable.selectedAccount = prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName]
+	end
 
+	-- TODO check whether we need all this stuff here
 	-- Clear login if it's a new connection.
 	
 	if not propertyTable.LR_editingExistingPublishConnection then
@@ -286,25 +292,31 @@ end
 
 --------------------------------------------------------------------------------
 
+--- Helper method for registering observers on property table
 function registerPropertyTableObservers( propertyTable )
 
-	-- Add observer for enabling account buttons
+	-- Add observer for selecteAccount property of property table
 	propertyTable:addObserver( 'selectedAccount', 
 		function() 
-			logger:trace('observer is triggered for')
+			logger:trace('observer is triggered for propertyTable selectedAccount')
 			enableAccountButtons( propertyTable ) 
 			updateCantExportBecause( propertyTable )
+			setSelectedConnectionForPublishServer( propertyTable )
 		end 
 	)
 	enableAccountButtons( propertyTable )
 	updateCantExportBecause( propertyTable )
+	setSelectedConnectionForPublishServer( propertyTable )
 
 end
 
 --------------------------------------------------------------------------------
 
+--- Observer helper function that sets
+ -- account buttons to enabled if an account is selected
 function enableAccountButtons( propertyTable ) 
-	logger:trace('in enable account buttons')
+
+	logger:trace('in enableAccountButtons')
 	logger:trace(YagUtils.toString(propertyTable.selectedAccount))
 	if propertyTable.selectedAccount == nil then
 		logger:trace('setting enable account buttons to false')
@@ -314,6 +326,23 @@ function enableAccountButtons( propertyTable )
 		propertyTable.loginButtonEnabled = true
 	end
 	propertyTable.loginButtonEnabled = propertyTable.loginButtonEnabled
+	
+end
+
+--------------------------------------------------------------------------------
+
+--- After we have selected an account for this service instance,
+ -- we have to store it to prefs by the name given to this service
+function setSelectedConnectionForPublishServer( propertyTable )
+
+	logger:trace('in setSelectedConnectionForPublishServer( propertyTable )')
+	logger:trace('propertyTable.selectedAccount: ' .. YagUtils.toString(propertyTable.selectedAccount))
+	if propertyTable.selectedAccount then
+		logger:trace('set selected account for this service instance')
+		prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName] = propertyTable.selectedAccount
+	end
+	logger:trace('selected account for this instance in prefs: ' .. YagUtils.toString(prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName]))
+
 end
 
 --------------------------------------------------------------------------------
