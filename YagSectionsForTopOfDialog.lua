@@ -59,18 +59,17 @@ YagSectionsForTopOfDialog = {}
 
 function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 	
+	logger:trace('propertyTable at beginning of getSectionsForTopOfDialog')
+	logger:trace(YagUtils.toString(propertyTable))
+	
 	-- We do some login for available accounts
 	for k,v in pairs(prefs.accounts) do
 		logger:trace("Accounts: ", "k: " .. k .. " v: " .. YagUtils.toString(v))
 	end
 	
-	if propertyTable.selectedAccount == nil then
-		logger:trace('Disabling login button')
-		propertyTable.loginButtonEnabled = false
-	else 
-		logger:trace('Enabling login button')
-		propertyTable.loginButtonEnabled = true
-	end
+	logger:trace('propertyTable after enableAccountButtons')
+	logger:trace(YagUtils.toString(propertyTable))
+	
 
 	-- Configuration for additional elements of publishing service dialog
 	return {
@@ -100,16 +99,7 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 						return r
 					end},
 					fill_horizontal = 1
-				},
-				
-				--[[
-				f:push_button {
-					title = 'test',
-					action = function()
-						LrDialogs.message("Prefs accounts table: ", YagUtils.toString(propertyTable.selectedAccount))
-					end
 				}
-				]]
 				
 			},
 			
@@ -140,6 +130,7 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 				
 				-- Edit account button
 				f:push_button {
+					enabled = bind { key = 'loginButtonEnabled', object = propertyTable },
 					title = LOC "$$$/yag/ExportDialog/EditAccount=Edit Account",
 					action = function() editAccount(propertyTable) end,
 					alignment = 'right'
@@ -147,6 +138,7 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 	
 				-- Delete account button
 				f:push_button {
+					enabled = bind { key = 'loginButtonEnabled', object = propertyTable },
 					title = LOC "$$$/yag/ExportDialog/DeleteAccount=Delete Account",
 					action = function() deleteSelectedAccount(propertyTable) end,
 					alignment = 'right'
@@ -363,3 +355,7 @@ function login( propertyTable )
 	LrDialogs.message("Doing Login!", YagUtils.toString(propertyTable.selectedAccount))
 
 end
+
+--------------------------------------------------------------------------------
+
+

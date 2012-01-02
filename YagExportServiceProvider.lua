@@ -232,7 +232,7 @@ exportServiceProvider.canExportVideo = false -- video is not supported through t
 
 local function updateCantExportBecause( propertyTable )
 
-	if not propertyTable.validAccount then
+	if not propertyTable.selectedAccount then
 		propertyTable.LR_cantExportBecause = LOC "$$$/yag/ExportDialog/NoLogin=You haven't logged in to yag yet."
 		return
 	end
@@ -273,14 +273,47 @@ function exportServiceProvider.startDialog( propertyTable )
 
 	-- Can't export until we've validated the login.
 
-	propertyTable:addObserver( 'validAccount', function() updateCantExportBecause( propertyTable ) end )
-	updateCantExportBecause( propertyTable )
+	-- We register propertyTable observers
+	propertyTable.loginButtonEnabled = false
+	registerPropertyTableObservers( propertyTable )
 
 	-- Make sure we're logged in.
 
 	require 'YagUser'
 	YagUser.verifyLogin( propertyTable )
 
+end
+
+--------------------------------------------------------------------------------
+
+function registerPropertyTableObservers( propertyTable )
+
+	-- Add observer for enabling account buttons
+	propertyTable:addObserver( 'selectedAccount', 
+		function() 
+			logger:trace('observer is triggered for')
+			enableAccountButtons( propertyTable ) 
+			updateCantExportBecause( propertyTable )
+		end 
+	)
+	enableAccountButtons( propertyTable )
+	updateCantExportBecause( propertyTable )
+
+end
+
+--------------------------------------------------------------------------------
+
+function enableAccountButtons( propertyTable ) 
+	logger:trace('in enable account buttons')
+	logger:trace(YagUtils.toString(propertyTable.selectedAccount))
+	if propertyTable.selectedAccount == nil then
+		logger:trace('setting enable account buttons to false')
+		propertyTable.loginButtonEnabled = false
+	else 
+		logger:trace('setting enable account buttons to true')
+		propertyTable.loginButtonEnabled = true
+	end
+	propertyTable.loginButtonEnabled = propertyTable.loginButtonEnabled
 end
 
 --------------------------------------------------------------------------------
