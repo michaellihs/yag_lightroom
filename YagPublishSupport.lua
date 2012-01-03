@@ -28,6 +28,16 @@ This copyright notice MUST APPEAR in all copies of the script!
 
 ------------------------------------------------------------------------------]]
 
+	-- some shortcuts
+local bind = import 'LrView'.bind
+local logger = import 'LrLogger'( 'Yag' )
+
+	-- yag plug-in
+require 'LoggerConfig'
+require 'YagUtils'
+	
+--------------------------------------------------------------------------------
+	
 local publishServiceProvider = {}
 
 --------------------------------------------------------------------------------
@@ -101,6 +111,8 @@ function publishServiceProvider.viewForCollectionSettings( f, publishSettings, i
 	-- Fill in default parameters. This code sample targets a hypothetical service
 	-- that allows users to enable or disable ratings and comments on a per-collection
 	-- basis.
+	
+	logger:trace('CollectionSettings in dialog: ' .. YagUtils.toString(collectionSettings))
 
 	if collectionSettings.enableRating == nil then
 		collectionSettings.enableRating = false
@@ -109,11 +121,9 @@ function publishServiceProvider.viewForCollectionSettings( f, publishSettings, i
 	if collectionSettings.enableComments == nil then
 		collectionSettings.enableComments = false
 	end
-	
-	local bind = import 'LrView'.bind
 
 	return f:group_box {
-		title = "Sample Plug-in Collection Settings",  -- this should be localized via LOC
+		title = LOC "$$$/yag/CollectionDialog/Title=Album settings",
 		size = 'small',
 		fill_horizontal = 1,
 		bind_to_object = assert( collectionSettings ),
@@ -122,16 +132,14 @@ function publishServiceProvider.viewForCollectionSettings( f, publishSettings, i
 			fill_horizontal = 1,
 			spacing = f:label_spacing(),
 
-			f:checkbox {
-				title = "Enable Rating",  -- this should be localized via LOC
-				value = bind 'enableRating',
+			f:static_text {
+				title = "Album name: " .. collectionSettings.albumName
 			},
-
-			f:checkbox {
-				title = "Enable Comments",  -- this should be localized via LOC
-				value = bind 'enableComments',
-			},
-		},
+			
+			f:static_text {
+				title = "Album UID: " .. collectionSettings.albumUid
+			}
+		}
 		
 	}
 

@@ -248,6 +248,10 @@ function exportServiceProvider.startDialog( propertyTable )
 	logger:trace('Prefs for plugin')
 	logger:trace(YagUtils.toString(prefs))
 	
+	-- We initialize some pref values
+	if not prefs.accounts then prefs.accounts = {} end
+	if not prefs.selectedAccountForServiceInstance then prefs.selectedAccountForServiceInstance = {} end
+	
 	-- We set current connection for this publishing service from prefs
 	if propertyTable.LR_publish_connectionName and prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName] then
 		propertyTable.selectedAccount = prefs.selectedAccountForServiceInstance[propertyTable.LR_publish_connectionName]
@@ -257,10 +261,6 @@ function exportServiceProvider.startDialog( propertyTable )
 	-- We register propertyTable observers
 	propertyTable.loginButtonEnabled = false
 	registerPropertyTableObservers( propertyTable )
-
-	-- TODO I think, we do not have to do that any longer
-	--require 'YagUser'
-	--YagUser.verifyLogin( propertyTable )
 
 end
 

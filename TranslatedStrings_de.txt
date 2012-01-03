@@ -25,3 +25,4 @@
 "$$$/yag/ExportDialog/AccountDeleted=Account wurde gelöscht!"
 "$$$/yag/ExportDialog/DeleteAllConfirmMessage=Wirklich ALLE accounts löschen?"
 "$$$/yag/ExportDialog/AccountsDeleted=Accounts wurden gelöscht!"
+"$$$/yag/CollectionDialog/Title=Eigenschaften von Album"

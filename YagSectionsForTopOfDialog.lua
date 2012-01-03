@@ -460,8 +460,7 @@ function getCollectionsFromServer(propertyTable)
 				gallerySettings.galleryUid = gallery.uid
 				gallerySettings.galleryName = gallery.name
 				galleryCollectionSet:setCollectionSetSettings(gallerySettings)
-				galleryCollectionSet:setRemoteId(gallery.uid)
-				logger:trace('Gallery Collection Set info: ' .. YagUtils.toString(galleryCollectionSet:getCollectionSetInfoSummary()))
+				galleryCollectionSet:setRemoteId(gallery.uid)			
 				
 				if gallery.subCollections then
 					for albumNumber, album in ipairs(gallery.subCollections) do
@@ -477,9 +476,7 @@ function getCollectionsFromServer(propertyTable)
 						logger:trace('Collection settings: ' .. YagUtils.toString(albumSettings))
 						albumCollection:setCollectionSettings(albumSettings)
 						albumCollection:setRemoteId(album.uid)
-						
-						-- That is how we can get all the information for this collection
-						logger:trace('Album Collection info: ' .. YagUtils.toString(albumCollection:getCollectionInfoSummary()))
+					
 					end
 				end
 			end	
