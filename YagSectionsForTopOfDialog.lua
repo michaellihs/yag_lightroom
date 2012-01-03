@@ -37,6 +37,8 @@ local LrView = import 'LrView'
 local LrTasks = import 'LrTasks'
 local LrFunctionContext = import 'LrFunctionContext'
 local LrErrors = import 'LrErrors'
+local LrApplication = import 'LrApplication'
+
 
 	-- Common shortcuts
 local bind = LrView.bind
@@ -69,12 +71,14 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 
 	-- Configuration for additional elements of publishing service dialog
 	return {
-	
+
+		-- Yag account settings	
 		{
 			title = LOC "$$$/yag/ExportDialog/Account=Yag Account",
 			
 			synopsis = bind {key = 'accountStatus', object = propertyTable },
 	
+
 			f:row {
 				spacing = f:control_spacing(),
 	
@@ -147,9 +151,27 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 					action = function() deleteAllAccounts(propertyTable) end,
 					alignment = 'right'
 				}
-				
-				
 	
+			}
+			
+		},
+		
+		-- Yag services
+		{
+			
+			enabled = false,		
+			title = 'Yag Services',
+			
+			f:row {
+
+				spacing = f:control_spacing(),
+			
+				f:push_button {
+					title = 'Get Collections from server',
+					action = function() getCollectionsFromServer(propertyTable) end,
+					alignment = 'left'
+				}
+				
 			}
 			
 		}
@@ -380,6 +402,7 @@ end
 
 --------------------------------------------------------------------------------
 
+--- Action that is triggered, if 'login' button is pushed
 function login( propertyTable ) 
 
 	-- TODO implement me!
@@ -401,4 +424,46 @@ end
 
 --------------------------------------------------------------------------------
 
+function getCollectionsFromServer(propertyTable) 
+
+	LrTasks.startAsyncTask( function()
+		collections = YagApi.getCollectionsFromServer(propertyTable)
+	
+		local activeCatalog = LrApplication.activeCatalog()
+		local publishServices = activeCatalog:getPublishServices('de.yaggallery.lightroom.export.yag')
+		local currentPublishService = nil
+		
+		for k,v in ipairs(publishServices) do
+			logger:trace('Publish service key: ' .. k .. ' value ' .. YagUtils.toString(v))
+			logger:trace('Publish service plugin id: ' .. v:getPluginId())
+			logger:trace('Publish service name: ' .. v:getName())
+			if v:getName() == propertyTable.LR_publish_connectionName then
+				currentPublishService = v
+			end
+		end
+		
+		if currentPublishService then
+			logger:trace('We have a current publish service')
+		else
+			LrDialogs.message('We do not have a current publish service!')
+			return
+		end
+	
+		-- We add each collection as publish collection for this publish service
+		activeCatalog:withWriteAccessDo( 'Inserting galleries and albums to publish service', function( context )
+			for k,v in ipairs(collections) do
+				-- We create a collection set for each gallery
+				local publishedCollectionSet = currentPublishService:createPublishedCollectionSet('[' .. v.uid .. '] '.. v.name, nil, true)
+				if v.subCollections then
+					for subk, subv in ipairs(v.subCollections) do
+						-- We create a collection for each album
+						local publishedCollection = currentPublishService:createPublishedCollection('[' .. subv.uid .. '] '.. subv.name, publishedCollectionSet, true)
+					end
+				end
+			end	
+		end) -- end write access
+		
+	end) -- end async task
+
+end
 

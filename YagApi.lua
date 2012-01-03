@@ -117,3 +117,49 @@ function YagApi.login(loginInformation)
 	end
 
 end
+
+--------------------------------------------------------------------------------
+
+--- Returns a set of collections for connection in given propertyTable
+function YagApi.getCollectionsFromServer(propertyTable)
+
+	-- TODO implement me!
+	local collections = {}
+	
+	subCollectionsForFirstCollection = {}
+	subCollectionsForFirstCollection[1] = {
+			uid = 1,
+			name = 'First sub collection'
+	}
+		
+	subCollectionsForFirstCollection[2] = {
+			uid = 2,
+			name = 'Second sub collection'
+	}
+	
+	subCollectionsForSecondCollection = {}
+	subCollectionsForSecondCollection[1] = {
+			uid = 3,
+			name = 'Third sub collection'
+	}
+		
+	subCollectionsForSecondCollection[2] = {
+			uid = 4,
+			name = '4th sub collection'
+	}
+	
+	collections[1] = {
+		uid = 1,
+		name = 'First Collection',
+		subCollections = subCollectionsForFirstCollection
+	}
+	
+	collections[2] = {
+		uid = 2,
+		name = 'Second Collection',
+		subCollections = subCollectionsForSecondCollection
+	}
+
+	return collections
+
+end
