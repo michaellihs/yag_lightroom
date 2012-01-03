@@ -129,34 +129,34 @@ function YagApi.getCollectionsFromServer(propertyTable)
 	subCollectionsForFirstCollection = {}
 	subCollectionsForFirstCollection[1] = {
 			uid = 1,
-			name = 'First sub collection'
+			name = 'First album'
 	}
 		
 	subCollectionsForFirstCollection[2] = {
 			uid = 2,
-			name = 'Second sub collection'
+			name = 'Second album'
 	}
 	
 	subCollectionsForSecondCollection = {}
 	subCollectionsForSecondCollection[1] = {
 			uid = 3,
-			name = 'Third sub collection'
+			name = 'Third album'
 	}
 		
 	subCollectionsForSecondCollection[2] = {
 			uid = 4,
-			name = '4th sub collection'
+			name = '4th album'
 	}
 	
 	collections[1] = {
 		uid = 1,
-		name = 'First Collection',
+		name = 'First Gallery',
 		subCollections = subCollectionsForFirstCollection
 	}
 	
 	collections[2] = {
 		uid = 2,
-		name = 'Second Collection',
+		name = 'Second Gallery',
 		subCollections = subCollectionsForSecondCollection
 	}
 

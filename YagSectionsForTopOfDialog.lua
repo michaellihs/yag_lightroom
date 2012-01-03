@@ -451,13 +451,35 @@ function getCollectionsFromServer(propertyTable)
 	
 		-- We add each collection as publish collection for this publish service
 		activeCatalog:withWriteAccessDo( 'Inserting galleries and albums to publish service', function( context )
-			for k,v in ipairs(collections) do
+			for galleryNumber, gallery in ipairs(collections) do
 				-- We create a collection set for each gallery
-				local publishedCollectionSet = currentPublishService:createPublishedCollectionSet('[' .. v.uid .. '] '.. v.name, nil, true)
-				if v.subCollections then
-					for subk, subv in ipairs(v.subCollections) do
+				local galleryCollectionSet = currentPublishService:createPublishedCollectionSet('[' .. gallery.uid .. '] '.. gallery.name, nil, true)
+				
+				-- We set some additional settings for this gallery
+				gallerySettings = {}
+				gallerySettings.galleryUid = gallery.uid
+				gallerySettings.galleryName = gallery.name
+				galleryCollectionSet:setCollectionSetSettings(gallerySettings)
+				galleryCollectionSet:setRemoteId(gallery.uid)
+				logger:trace('Gallery Collection Set info: ' .. YagUtils.toString(galleryCollectionSet:getCollectionSetInfoSummary()))
+				
+				if gallery.subCollections then
+					for albumNumber, album in ipairs(gallery.subCollections) do
 						-- We create a collection for each album
-						local publishedCollection = currentPublishService:createPublishedCollection('[' .. subv.uid .. '] '.. subv.name, publishedCollectionSet, true)
+						local albumCollection = currentPublishService:createPublishedCollection('[' .. album.uid .. '] '.. album.name, galleryCollectionSet, true)
+						
+						-- We set some additional settings for this album
+						albumSettings = {}
+						albumSettings.albumUid = album.uid
+						albumSettings.albumName = album.name
+						albumSettings.galleryUid = gallery.uid
+						albumSettings.galleryName = gallery.name
+						logger:trace('Collection settings: ' .. YagUtils.toString(albumSettings))
+						albumCollection:setCollectionSettings(albumSettings)
+						albumCollection:setRemoteId(album.uid)
+						
+						-- That is how we can get all the information for this collection
+						logger:trace('Album Collection info: ' .. YagUtils.toString(albumCollection:getCollectionInfoSummary()))
 					end
 				end
 			end	
