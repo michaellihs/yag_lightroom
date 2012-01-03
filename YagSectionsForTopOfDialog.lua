@@ -123,12 +123,14 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 				},
 				
 				-- Edit account button
+				--[[  THIS IS NOT WORKING: table is excessivly nested... DAMN!
 				f:push_button {
 					enabled = bind { key = 'loginButtonEnabled', object = propertyTable },
 					title = LOC "$$$/yag/ExportDialog/EditAccount=Edit Account",
 					action = function() editAccount(propertyTable) end,
 					alignment = 'right'
 				},
+				]]
 	
 				-- Delete account button
 				f:push_button {
@@ -250,6 +252,7 @@ function YagSectionsForTopOfDialog.showLoginDialogAndLogin( accountSettings )
 				--attempt to login
 				local success = YagApi.login( loginInformation )
 				-- TODO add some more detailed error message here!
+				-- TODO add translation!
 				if not success then LrDialogs.message("Error", "Login was not successfull. Make sure your settings are correct!")
 				else
 					return loginInformation
@@ -308,6 +311,7 @@ function deleteAllAccounts(propertyTable)
 	if reallyDelete then
 		prefs.accounts = {}
 		propertyTable.selectedAccount = nil
+		propertyTable.auth_token = nil
 		
 		LrDialogs.message(LOC "$$$/yag/ExportDialog/AccountsDeleted=Accounts Deleted!")
 		
@@ -346,10 +350,11 @@ end
 
 --------------------------------------------------------------------------------
 
+--- Called if an account should be edited
+ -- Shows dialog for editing account information
 function editAccount( propertyTable )
 
 	LrTasks.startAsyncTask( function()
-	
 		local accountSettings = prefs.accounts[propertyTable.selectedAccount]
 
 		local loginInformation = YagSectionsForTopOfDialog.showLoginDialogAndLogin( accountSettings )
@@ -359,14 +364,16 @@ function editAccount( propertyTable )
 		end
 	
 		local k = loginInformation.url.." - "..loginInformation.username
-		--prefs.accounts = {}
+		logger:trace('Changed account information')
+		logger:trace('k: ' .. YagUtils.toString(k))
+		logger:trace('loginInformation: ' .. YagUtils.toString(loginInformation))
+		prefs.accounts[k] = nil
 		prefs.accounts[k] = loginInformation
 		
 		--force the observable table to propagate the change
 		prefs.accounts = prefs.accounts
 		
-		LrDialogs.message("Account added.")
-		
+		LrDialogs.message("Account changed.")
 	end)
 	
 end
