@@ -136,7 +136,17 @@ function YagSectionsForTopOfDialog.getSectionsForTopOfDialog( f, propertyTable )
 					title = LOC "$$$/yag/ExportDialog/DeleteAccount=Delete Account",
 					action = function() deleteSelectedAccount(propertyTable) end,
 					alignment = 'right'
+				},
+				
+				-- Delete ALL accounts button
+				f:push_button {
+					enabled = bind { key = 'loginButtonEnabled', object = propertyTable },
+					title = LOC "$$$/yag/ExportDialog/DeleteAccount=Delete ALL Accounts",
+					action = function() deleteAllAccounts(propertyTable) end,
+					alignment = 'right'
 				}
+				
+				
 	
 			}
 			
@@ -286,6 +296,29 @@ end
 
 --------------------------------------------------------------------------------
 
+--- Deletes ALL accounts from prefs
+function deleteAllAccounts(propertyTable)
+	local reallyDelete = LrDialogs.confirm( 
+		LOC "$$$/yag/ExportDialog/Confirm=Confirm", 
+		LOC "$$$/yag/ExportDialog/DeleteAllConfirmMessage=Are you sure you want to delete ALL accounts?", 
+		LOC "$$$/yag/ExportDialog/Yes=Yes", 
+		LOC "$$$/yag/ExportDialog/Cancel=Cancel"
+	)
+	
+	if reallyDelete then
+		prefs.accounts = {}
+		propertyTable.selectedAccount = nil
+		
+		LrDialogs.message(LOC "$$$/yag/ExportDialog/AccountsDeleted=Accounts Deleted!")
+		
+		--force the observable tables to propagate the changes
+		prefs.accounts = prefs.accounts
+		propertyTable.selectedAccount = propertyTable.selectedAccount
+	end
+end
+
+--------------------------------------------------------------------------------
+
 --- Called, if a new account should be created
  -- Shows dialog for entering information about new account
 function addAccount()
@@ -327,7 +360,7 @@ function editAccount( propertyTable )
 	
 		local k = loginInformation.url.." - "..loginInformation.username
 		--prefs.accounts = {}
-		prefs.accounts[k] = {loginInformation}
+		prefs.accounts[k] = loginInformation
 		
 		--force the observable table to propagate the change
 		prefs.accounts = prefs.accounts
