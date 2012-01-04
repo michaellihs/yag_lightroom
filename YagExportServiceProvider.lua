@@ -350,6 +350,33 @@ end
 
 --------------------------------------------------------------------------------
 
+--- Helper function for creating a photo title
+local function getYagTitle( photo, exportSettings, pathOrMessage )
+
+	local title
+			
+	-- Get title according to the options in Flickr Title section.
+
+	if exportSettings.titleFirstChoice == 'filename' then
+				
+		title = LrPathUtils.leafName( pathOrMessage )
+				
+	elseif exportSettings.titleFirstChoice == 'title' then
+				
+		title = photo:getFormattedMetadata 'title'
+				
+		if ( not title or #title == 0 ) and exportSettings.titleSecondChoice == 'filename' then
+			title = LrPathUtils.leafName( pathOrMessage )
+		end
+
+	end
+				
+	return title
+
+end
+
+--------------------------------------------------------------------------------
+
 --- (optional) This plug-in defined callback function is called when the user 
  -- chooses this export service provider in the Export or Publish dialog. 
  -- It can create new sections that appear above all of the built-in sections 
@@ -379,5 +406,148 @@ end
 
 --------------------------------------------------------------------------------
 
+--- (optional) This plug-in defined callback function is called for each exported photo
+ -- after it is rendered by Lightroom and after all post-process actions have been
+ -- applied to it. This function is responsible for transferring the image file 
+ -- to its destination, as defined by your plug-in. The function that
+ -- you define is launched within a cooperative task that Lightroom provides. You
+ -- do not need to start your own task to run this function; and in general, you
+ -- should not need to start another task from within your processing function.
+ -- <p>First supported in version 1.3 of the Lightroom SDK.</p>
+	-- @param functionContext (<a href="LrFunctionContext.html"><code>LrFunctionContext</code></a>)
+		-- function context that you can use to attach clean-up behaviors to this
+		-- process; this function context terminates as soon as your function exits.
+	-- @param exportContext (<a href="LrExportContext.html"><code>LrExportContext</code></a>)
+		-- Information about your export settings and the photos to be published.
+
+function exportServiceProvider.processRenderedPhotos( functionContext, exportContext )
+	
+	local exportSession = exportContext.exportSession
+
+	-- Make a local reference to the export parameters.
+	local exportSettings = assert( exportContext.propertyTable )
+		
+	-- Get the # of photos.
+	local nPhotos = exportSession:countRenditions()
+	
+	-- Set progress title.
+	local progressScope = exportContext:configureProgress {
+						title = nPhotos > 1
+									and LOC( "$$$/yag/Publish/Progress=Publishing ^1 photos to Yag", nPhotos )
+									or LOC "$$$/yag/Publish/Progress/One=Publishing one photo to Yag",
+					}
+
+	-- Save off uploaded photo IDs so we can take user to those photos later.
+	local uploadedPhotoIds = {}
+	
+	local publishedCollectionInfo = exportContext.publishedCollectionInfo
+
+	-- Look for a photoset id for this collection.
+	local albumUid = publishedCollectionInfo.remoteId
+
+	-- TODO implement mechanism for update items instead of re-uploading them
+	-- Get a list of photos already in this photoset so we know which ones we can replace and which have
+	-- to be re-uploaded entirely.
+	--local albumItemUids = albumUid and YagApi.getItemUidsFromAlbum( albumUid )
+	
+	local albumPhotosSet = {}
+	
+	-- Turn it into a set for quicker access later.
+	if albumItemUids then
+		for _, id in ipairs( albumItemUids ) do	
+			albumPhotosSet[ id ] = true
+		end
+	end
+	
+	----------------------------------------------------------------------------------------------------------------------------------------------------------------
+	-- TODO implement re-publish mechanism: At the moment, every item is published, no matter whether it has been published before or not	
+	----------------------------------------------------------------------------------------------------------------------------------------------------------------
+	
+	-- Iterate through photo renditions.
+	
+	local albumUrl
+
+	for i, rendition in exportContext:renditions { stopIfCanceled = true } do
+	
+		-- Update progress scope.
+		
+		progressScope:setPortionComplete( ( i - 1 ) / nPhotos )
+		
+		-- Get next photo.
+
+		local photo = rendition.photo
+		
+		if not rendition.wasSkipped then
+
+			local success, pathOrMessage = rendition:waitForRender()
+			
+			-- Update progress scope again once we've got rendered photo.
+			progressScope:setPortionComplete( ( i - 0.5 ) / nPhotos )
+			
+			-- Check for cancellation again after photo has been rendered.
+			if progressScope:isCanceled() then break end
+			
+			if success then
+	
+				-- Build up common metadata for this photo.
+				local title = getYagTitle( photo, exportSettings, pathOrMessage )
+				local description = photo:getFormattedMetadata( 'caption' )
+				local keywordTags = photo:getFormattedMetadata( 'keywordTagsForExport' )
+				
+				local tags
+				
+				if keywordTags then
+
+					tags = {}
+
+					local keywordIter = string.gfind( keywordTags, "[^,]+" )
+
+					for keyword in keywordIter do
+					
+						if string.sub( keyword, 1, 1 ) == ' ' then
+							keyword = string.sub( keyword, 2, -1 )
+						end
+						
+						if string.find( keyword, ' ' ) ~= nil then
+							keyword = '"' .. keyword .. '"'
+						end
+						
+						tags[ #tags + 1 ] = keyword
+
+					end
+
+				end
+				
+				-- Upload or replace the photo.
+				yagItemUid = YagApi.uploadPhoto( exportSettings, {
+										filePath = pathOrMessage,
+										title = title or '',
+										description = description,
+										tags = table.concat( tags, ',' )
+									} )
+
+				logger:trace('We got a yagItemUid from API: ' .. YagUtils.toString(yagItemUid))
+
+				-- When done with photo, delete temp file. There is a cleanup step that happens later,
+				-- but this will help manage space in the event of a large upload.
+				LrFileUtils.delete( pathOrMessage )
+	
+				-- Remember this in the list of photos we uploaded.
+				uploadedPhotoIds[ #uploadedPhotoIds + 1 ] = yagItemUid
+				
+				-- Record this yag uid with the photo so we know to replace instead of upload.
+				rendition:recordPublishedPhotoId( yagItemUid )
+			
+			end
+			
+		end
+
+	end
+
+	progressScope:done()
+	
+end
+
+--------------------------------------------------------------------------------
 
 return exportServiceProvider

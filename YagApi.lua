@@ -39,6 +39,8 @@ require 'YagUtils'
 
 YagApi = {}
 
+-- TODO this is a helper property here - remove later!
+YagApi.fakeUidCounter = 1
 --------------------------------------------------------------------------------
 
 --- Returns login information for given yag account.
@@ -162,4 +164,20 @@ function YagApi.getCollectionsFromServer(propertyTable)
 
 	return collections
 
+end
+
+--------------------------------------------------------------------------------
+
+--- Actually uploads a photo to yag
+function YagApi.uploadPhoto(exportSettings, properties)
+
+	-- TODO implement me!
+	logger:trace('YagApi.uploadPhoto has been called with exportSettings: ')
+	logger:trace(YagUtils.toString(exportSettings))
+	logger:trace('YagApi.uploadPhoto has been called with properties: ')
+	logger:trace(YagUtils.toString(properties))
+	
+	YagApi.fakeUidCounter = YagApi.fakeUidCounter + 1
+	
+	return YagApi.fakeUidCounter
 end

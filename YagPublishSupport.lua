@@ -108,10 +108,6 @@ function publishServiceProvider.viewForCollectionSettings( f, publishSettings, i
 
 	local collectionSettings = assert( info.collectionSettings )
 	
-	-- Fill in default parameters. This code sample targets a hypothetical service
-	-- that allows users to enable or disable ratings and comments on a per-collection
-	-- basis.
-	
 	logger:trace('CollectionSettings in dialog: ' .. YagUtils.toString(collectionSettings))
 
 	if collectionSettings.enableRating == nil then

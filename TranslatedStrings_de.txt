@@ -26,3 +26,5 @@
 "$$$/yag/ExportDialog/DeleteAllConfirmMessage=Wirklich ALLE accounts löschen?"
 "$$$/yag/ExportDialog/AccountsDeleted=Accounts wurden gelöscht!"
 "$$$/yag/CollectionDialog/Title=Eigenschaften von Album"
+"$$$/yag/Publish/Progress=Veröffentliche ^1 Fotos auf Yag"
+"$$$/yag/Publish/Progress/One=Veröffentliche ein Foto auf Yag"
